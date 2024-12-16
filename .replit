@@ -1,0 +1,30 @@
+entrypoint = "index.js"
+modules = ["nodejs-18:v3-20230608-f4cd419"]
+hidden = [".config", "package-lock.json"]
+
+[nix]
+channel = "stable-23_05"
+
+[unitTest]
+language = "nodejs"
+
+[deployment]
+run = ["node", "index.js"]
+deploymentTarget = "cloudrun"
+ignorePorts = false
+
+[[ports]]
+localPort = 80
+externalPort = 80
+
+[workflows]
+runButton = "Don't Run Repl"
+
+[[workflows.workflow]]
+name = "Don't Run Repl"
+mode = "sequential"
+author = 8662822
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "echo \"Don't run the repl, redeploy it!\""
