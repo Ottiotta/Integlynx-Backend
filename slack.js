@@ -1,5 +1,4 @@
-const webhook =
-  "https://hooks.slack.com/services/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";
+const webhook = process.env['slack_webhook_url'];
 
 async function replaceAsync(str, regex, asyncFn) {
   const promises = [];
