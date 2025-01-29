@@ -1,4 +1,4 @@
-const webhook = process.env['slack_webhook_url'];
+const webhook = process.env["slack_webhook_url"];
 
 async function replaceAsync(str, regex, asyncFn) {
   const promises = [];
@@ -63,7 +63,7 @@ function clickupHandle(attach) {
 }
 
 function postMessage(text) {
-  fetch(webhook, {
+  /*fetch(webhook, {
     method: "POST", // *GET, POST, PUT, DELETE, etc.
     mode: "cors", // no-cors, *cors, same-origin
     cache: "no-cache",
@@ -76,7 +76,7 @@ function postMessage(text) {
     body: JSON.stringify({ text: text, id: 2 }),
   }).then(response => {
     console.log("Response from posting in Slack: " + JSON.stringify(response));
-  });
+  });*/
 }
 
 module.exports = { postMessage, linkHandle, mailHandle, clickupHandle };

@@ -25,10 +25,10 @@ const server = http.createServer(function (req, res) {
   });
 
   req.on("end", async function () {
+    // Store posted message in database
     if (req.method === "POST" && req.url === "/api/messages/send") {
       try {
         const jsonData = JSON.parse(data);
-
         await requesthandle.sendMessage(jsonData);
 
         res.setHeader("Content-Type", "application/json");
@@ -44,11 +44,15 @@ const server = http.createServer(function (req, res) {
         res.end("Error: Invalid JSON data");
         console.log("Error:" + JSON.stringify(error));
       }
+
+      // Send all messages to front-end
     } else if (req.method === "GET" && req.url === "/api/messages") {
       const messages = await requesthandle.getMessages();
 
       res.setHeader("Content-Type", "application/json");
       res.end(JSON.stringify(messages));
+
+      // Remove message from database
     } else if (req.method === "POST" && req.url === "/api/messages/delete") {
       let jsonData = {};
       console.log(data);
@@ -62,6 +66,8 @@ const server = http.createServer(function (req, res) {
 
       res.statusCode = 200;
       res.end("Deleted every message");
+
+      // Edit message using its id
     } else if (req.method === "POST" && req.url === "/api/messages/edit") {
       let jsonData = {};
       console.log(data);
@@ -69,17 +75,20 @@ const server = http.createServer(function (req, res) {
         jsonData = JSON.parse(data);
       } catch {}
 
-      const message = await requesthandle.editMessage(jsonData.id, jsonData.message);
+      const message = await requesthandle.editMessage(
+        jsonData.id,
+        jsonData.message,
+      );
       console.log("jsonData.id: " + jsonData.id);
       console.log("jsonData: " + JSON.stringify(jsonData));
 
       res.statusCode = 200;
       res.setHeader("Content-Type", "application/json");
       res.end(JSON.stringify(message));
+
+      // Send message to Slack
     } else if (
-      req.method === "POST" &&
-      req.url.includes("/event/message/slack")
-    ) {
+      req.method === "POST" && req.url.includes("/event/message/slack")) {
       res.statusCode = 200;
       res.setHeader("Content-Type", "text/plain");
       const jsonData = JSON.parse(data);
