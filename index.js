@@ -6,6 +6,8 @@ const logging = require("./logging.js");
 const slackBotId = process.env["SLACK_BOT_ID"];
 const clickupSlackBotId = process.env["CLICKUP_SLACK_BOT_ID"];
 
+logging.info("Starting up...");
+
 const server = http.createServer(function (req, res) {
   // CORS headers
   res.setHeader("Access-Control-Allow-Origin", "*");
@@ -107,7 +109,7 @@ const server = http.createServer(function (req, res) {
         return;
       }
       await requesthandle.slackMessage(jsonData);
-      
+
       res.end("Message received");
 
       // Route not found
