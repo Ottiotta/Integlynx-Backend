@@ -1,0 +1,5 @@
+{
+  "templates": {
+    "default": "[${level}] (${source}) ${text}"
+  }
+}
