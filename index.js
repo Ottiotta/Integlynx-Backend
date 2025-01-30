@@ -98,6 +98,8 @@ const server = http.createServer(function (req, res) {
       await requesthandle.slackMessage(jsonData);
 
       res.end("Message received");
+
+      // Route not found
     } else {
       res.statusCode = 400;
       res.end("Not Found");
@@ -108,6 +110,7 @@ const server = http.createServer(function (req, res) {
 server.listen(80, "0.0.0.0", () => {
   console.log("Server running at localhost");
 });
+
 
 /* JSON data retrieved from slack:
 {
