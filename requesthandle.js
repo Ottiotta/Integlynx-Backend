@@ -33,9 +33,6 @@ async function slackMessage(jsonData) {
   if (jsonData.event.bot_id != slackBotId) {
     // For preventing message recursion
     jsonData.event.text = formatting.format(jsonData.event.text);
-
-    res.setHeader("Content-Type", "application/json");
-
     jsonData.event.text = await slack.linkHandle(jsonData.event.text);
     jsonData.event.text = slack.mailHandle(jsonData.event.text);
 
@@ -58,7 +55,7 @@ async function removeMessage(id = "all") {
 async function editMessage(id, raw) {
   // remove html tags, add markup, newline
   let message = formatting.format(raw);
-  //handle links and images
+  // handle links and images
   message = await formatting.replaceAsync(
     message,
     /(?:https?:\/\/([\w.-]+)(?:(\/[\w./@-]*)|\@?([\w./@-]*))?)|([A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,})/gi,
