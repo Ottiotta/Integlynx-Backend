@@ -8,7 +8,11 @@ function getCallerInfo() {
     stack.match(/at\s+(.*)\s+\((.*):(\d+):(\d+)\)/) ||
     stack.match(/at\s+()(.*):(\d+):(\d+)/);
   if (caller) {
-    return `${caller[2]}:${caller[3]}`;
+    return { 
+      fileName: caller[2].split("/")[-1], 
+      filePath: caller[2].replace(/.*\//, ""), 
+      lineNumber: caller[3] 
+    };
   }
   return "unknown";
 }
@@ -31,6 +35,7 @@ function error(text) {
 
 function log(level, source, text) {
   const template = config.templates[level] || config.templates.default;
+  
   const output = template
     .replace("${level}", level)
     .replace("${source}", source)

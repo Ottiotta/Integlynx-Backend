@@ -1,6 +1,5 @@
 entrypoint = "index.js"
-icon = "Integlynx_Lynx.png"
-modules = ["nodejs-18:v3-20230608-f4cd419", "postgresql-16"]
+modules = ["nodejs-18:v3-20230608-f4cd419"]
 hidden = [".config", "package-lock.json"]
 
 [nix]

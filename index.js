@@ -1,12 +1,12 @@
 const http = require("http");
 const slack = require("./slack.js");
 const requesthandle = require("./requesthandle.js");
-const logging = require("./logging.js");
+const log = require("./logging.js");
 
 const slackBotId = process.env["SLACK_BOT_ID"];
 const clickupSlackBotId = process.env["CLICKUP_SLACK_BOT_ID"];
 
-logging.info("Starting up...");
+log.info("Starting up...");
 
 const server = http.createServer(function (req, res) {
   // CORS headers
