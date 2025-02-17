@@ -5,14 +5,15 @@ String.prototype.applyTemplates = applyTemplates;
 function getCallerInfo() {
   const err = new Error();
   const stack = err.stack.split("\n")[3]; // Get caller of logging function
-  log("INFO", { source: "getCallerInfo" }, stack);
+  console.(err.stack);
   const caller =
     stack.match(/at\s+(.*)\s+\((.*):(\d+):(\d+)\)/) ||
     stack.match(/at\s+()(.*):(\d+):(\d+)/);
-  log("INFO", { source: "getCallerInfo" }, caller);
+  console.log(caller);
+  console.log(caller[2].split("/").at(-1));
   if (caller) {
     return {
-      file: caller[2].split("/")[-1],
+      name: caller[2].split("/").at(-1),
       path: caller[2].replace(/.*\//, ""),
       line: caller[3],
       function: "fun" /*add function name*/,
@@ -21,15 +22,12 @@ function getCallerInfo() {
   return "unknown";
 }
 
-function applyTemplates(
-  templates,
-  templateStart = "${",
-  templateEnd = "}",
-) {
-  templates.forEach((template) => {
+function applyTemplates(templates, templateStart = "${", templateEnd = "}") {
+  let text = this;
+  Object.keys(templates).forEach((template) => {
     text = text.replace(
-      templateStart + template.key + templateEnd,
-      template.value,
+      templateStart + template + templateEnd,
+      templates[template],
     );
   });
   return text;
