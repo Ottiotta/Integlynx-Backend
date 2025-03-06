@@ -1,7 +1,8 @@
 {
   "templates": {
     "source": "${name}:${line}",
-    "default": "[${level}] ${function} (${source}) ${text}"
+    "default": "[${level}] ${function} (${source}) ${text}",
+    "FATAL": "[${level}] (${name}) ${stack}"
   },
   "display": {
     "default": true,

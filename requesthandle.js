@@ -15,6 +15,8 @@ async function sendMessage(jsonData) {
 
   let raw = jsonData.message;
 
+  invalid invalid invalid
+
   log.debug(
     "requesthandle.sendMessage -> jsonData.message: " + jsonData.message,
   );

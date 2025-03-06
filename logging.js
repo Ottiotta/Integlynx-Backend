@@ -47,7 +47,11 @@ function error(text) {
   log("ERROR", getCallerInfo(), text);
 }
 
-function log(level, sourceobj, text) {
+function fatal(error) {
+  log("FATAL", { 'name': error.name, 'stack': error.stack });
+}
+
+function log(level = "INFO", sourceobj = {}, text = "") {
   const template = config.templates[level] || config.templates.default;
   const display = config.display[level] || config.display.default;
   if (!display) {
@@ -69,4 +73,4 @@ function log(level, sourceobj, text) {
   }
 }
 
-module.exports = { debug, info, warning, error };
+module.exports = { debug, info, warning, error, fatal };
