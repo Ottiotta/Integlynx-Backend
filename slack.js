@@ -1,3 +1,4 @@
+const log = require("./logging.js");
 const webhook = process.env["slack_webhook_url"];
 
 async function replaceAsync(str, regex, asyncFn) {
@@ -11,7 +12,7 @@ async function replaceAsync(str, regex, asyncFn) {
 }
 
 function mailHandle(text) {
-  console.log("Slack mailHandle: " + text);
+  log.debug("mailHandle: " + text);
   const regex =
     /&lt;mailto:[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\|([A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,})&gt;/gi;
   let outtext = text.replace(regex, (match, email) => {
@@ -21,16 +22,16 @@ function mailHandle(text) {
 }
 
 async function linkMatchHandle(match, link) {
-  console.log("slackLinkHandle called");
-  console.log("match: " + match);
-  console.log("link: " + link);
+  log.info("slackLinkHandle called");
+  log.debug("match: " + match);
+  log.debug("link: " + link);
   try {
     fetchresult = (await fetch(link)).headers
       .get("Content-Type")
       .includes("image");
-    console.log("fetch: " + fetchresult);
+    log.debug("fetch: " + fetchresult);
   } catch (error) {
-    console.log("error: " + error);
+    log.warning("error: " + error);
     fetch = false;
   }
   if (fetchresult) {
@@ -41,7 +42,7 @@ async function linkMatchHandle(match, link) {
 }
 
 async function linkHandle(text) {
-  console.log("Slack linkHandle: " + text);
+  log.debug(text);
   let outtext = await replaceAsync(
     text,
     /&lt;(https?:\/\/[^\s]+\.[^\s]+)&gt;/gi,
@@ -51,6 +52,7 @@ async function linkHandle(text) {
 }
 
 function clickupHandle(attach) {
+  log.debug(attach);
   let outtext =
     "<br/><br/><b>Task:</b> " +
     attach.replace(
@@ -63,6 +65,8 @@ function clickupHandle(attach) {
 }
 
 function postMessage(text) {
+  log.info("postMessage called");
+  log.debug("text: " + text);
   fetch(webhook, {
     method: "POST", // *GET, POST, PUT, DELETE, etc.
     mode: "cors", // no-cors, *cors, same-origin
@@ -74,8 +78,8 @@ function postMessage(text) {
     redirect: "follow", // manual, *follow, error
     referrerPolicy: "no-referrer",
     body: JSON.stringify({ text: text, id: 2 }),
-  }).then(response => {
-    console.log("Response from posting in Slack: " + JSON.stringify(response));
+  }).then((response) => {
+    log.debug("Response from posting in Slack: " + JSON.stringify(response));
   });
 }
 

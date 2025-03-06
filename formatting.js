@@ -1,4 +1,5 @@
 const slack = require("./slack.js");
+const log = require("./logging.js");
 
 function removeHTML(str) {
   str = str.replace("<", "&lt;");
@@ -7,6 +8,7 @@ function removeHTML(str) {
 }
 
 function markup(str) {
+  log.debug("markup called");
   // code block
   str = str.replace(
     /^```((?:.|(?:\n))*?)```(?=$)/gm,
@@ -42,29 +44,32 @@ function newLine(str) {
 };
 
 function format(str) {
+  log.info("format called");
+  log.debug("in string: " + str);
   str = removeHTML(str);
   str = markup(str);
   str = newLine(str);
+  log.debug("out string: " + str);
   return str;
 };
 
 module.exports = { format, linkHandle, replaceAsync };
 
 async function linkHandle(match, target, path = "", rem, mail) {
-  console.log("linkhandle called");
-  console.log("match: " + match);
-  console.log("target: " + target);
-  console.log("path: " + path);
-  console.log("rem: " + rem);
-  console.log("mail: " + mail);
+  log.info("linkhandle called");
+  log.debug("match: " + match);
+  log.debug("target: " + target);
+  log.debug("path: " + path);
+  log.debug("rem: " + rem);
+  log.debug("mail: " + mail);
   if (mail == undefined) {
     try {
       fetchresult = (await fetch("https://" + target + path)).headers
         .get("Content-Type")
         .includes("image");
-      console.log("fetch: " + fetchresult);
+      log.debug("fetch: " + fetchresult);
     } catch (error) {
-      console.log("error: " + error);
+      log.warning(error);
       fetch = false;
     }
     if (fetchresult) {
@@ -73,7 +78,7 @@ async function linkHandle(match, target, path = "", rem, mail) {
       if (rem != undefined) {
         return `<a href="${"https://" + rem}" target="_blank">${rem}</a>`;
       } else {
-        console.log(
+        log.debug(
           `OUT LINK: <a href="${"https://" + target + path}" target="_blank">${target + path}</a>`,
         );
         return `<a href="${"https://" + target + path}" target="_blank">${target + path}</a>`;
@@ -83,6 +88,7 @@ async function linkHandle(match, target, path = "", rem, mail) {
 };
 
 async function replaceAsync(str, regex, asyncFn) {
+  log.info("replaceAsync called");
   const promises = [];
   str.replace(regex, (full, ...args) => {
     promises.push(asyncFn(full, ...args));

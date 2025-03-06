@@ -9,6 +9,7 @@ const clickupSlackBotId = process.env["CLICKUP_SLACK_BOT_ID"];
 log.info("Starting up...");
 
 const server = http.createServer(function (req, res) {
+  log.info("Request received");
   // CORS headers
   res.setHeader("Access-Control-Allow-Origin", "*");
 
@@ -31,6 +32,7 @@ const server = http.createServer(function (req, res) {
     // Store posted message in database
     if (req.method === "POST" && req.url === "/api/messages/send") {
       try {
+        log.info("POST request: send");
         const jsonData = JSON.parse(data);
         await requesthandle.sendMessage(jsonData);
 
@@ -45,11 +47,12 @@ const server = http.createServer(function (req, res) {
       } catch (error) {
         res.statusCode = 400; // Bad request
         res.end("Error: Invalid JSON data");
-        console.log("Error:" + JSON.stringify(error));
+        log.error(JSON.stringify(error));
       }
 
       // Send all messages to front-end
     } else if (req.method === "GET" && req.url === "/api/messages") {
+      log.info("GET request received");
       const messages = await requesthandle.getMessages();
 
       res.setHeader("Content-Type", "application/json");
@@ -57,14 +60,15 @@ const server = http.createServer(function (req, res) {
 
       // Remove message from database
     } else if (req.method === "POST" && req.url === "/api/messages/delete") {
+      log.info("POST request: delete");
       let jsonData = {};
-      console.log(data);
+      log.debug(data);
       try {
         jsonData = JSON.parse(data);
-        console.log("jsonData.id: " + jsonData.id);
-        console.log("jsonData: " + JSON.stringify(jsonData));
+        log.debug("jsonData.id: " + jsonData.id);
+        log.debug("jsonData: " + JSON.stringify(jsonData));
       } catch {
-        console.log("no or invalid jsonData recieved");
+        log.warning("no or invalid jsonData recieved");
       }
 
       await requesthandle.removeMessage(jsonData.id);
@@ -74,24 +78,23 @@ const server = http.createServer(function (req, res) {
 
       // Edit message using its id
     } else if (req.method === "POST" && req.url === "/api/messages/edit") {
+      log.info("POST request: edit");
       let jsonData = {};
-      console.log(data);
+      log.debug(data);
       try {
         jsonData = JSON.parse(data);
-        console.log("jsonData.id: " + jsonData.id);
-        console.log("jsonData: " + JSON.stringify(jsonData));
+        log.debug("jsonData.id: " + jsonData.id);
+        log.debug("jsonData: " + JSON.stringify(jsonData));
         const message = await requesthandle.editMessage(
           jsonData.id,
           jsonData.message,
         );
-        console.log("jsonData.id: " + jsonData.id);
-        console.log("jsonData: " + JSON.stringify(jsonData));
 
         res.statusCode = 200;
         res.setHeader("Content-Type", "application/json");
         res.end(JSON.stringify(message));
       } catch {
-        console.log("no or invalid jsonData recieved");
+        log.warning("no or invalid jsonData recieved");
         res.setHeader("Content-Type", "text/plain");
         res.statusCode = 400;
         res.end("invalid data");
@@ -102,6 +105,7 @@ const server = http.createServer(function (req, res) {
       req.method === "POST" &&
       req.url.includes("/event/message/slack")
     ) {
+      log.info("POST request: slack");
       res.statusCode = 200;
       res.setHeader("Content-Type", "text/plain");
       const jsonData = JSON.parse(data);
@@ -121,7 +125,7 @@ const server = http.createServer(function (req, res) {
 });
 
 server.listen(80, "0.0.0.0", () => {
-  console.log("Server running at localhost");
+  log.info("Server running at localhost");
 });
 
 /* JSON data retrieved from slack:

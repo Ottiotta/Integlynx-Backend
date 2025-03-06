@@ -1,6 +1,10 @@
 {
   "templates": {
     "source": "${name}:${line}",
-    "default": "[${level}] (${source}) ${text}"
+    "default": "[${level}] ${function} (${source}) ${text}"
+  },
+  "display": {
+    "default": true,
+    "DEBUG": true
   }
 }

@@ -5,18 +5,16 @@ String.prototype.applyTemplates = applyTemplates;
 function getCallerInfo() {
   const err = new Error();
   const stack = err.stack.split("\n")[3]; // Get caller of logging function
-  console.(err.stack);
   const caller =
     stack.match(/at\s+(.*)\s+\((.*):(\d+):(\d+)\)/) ||
     stack.match(/at\s+()(.*):(\d+):(\d+)/);
-  console.log(caller);
-  console.log(caller[2].split("/").at(-1));
   if (caller) {
     return {
+      function: caller[1].split(".")[1],
       name: caller[2].split("/").at(-1),
       path: caller[2].replace(/.*\//, ""),
       line: caller[3],
-      function: "fun" /*add function name*/,
+      column: caller[4],
     };
   }
   return "unknown";
@@ -51,6 +49,10 @@ function error(text) {
 
 function log(level, sourceobj, text) {
   const template = config.templates[level] || config.templates.default;
+  const display = config.display[level] || config.display.default;
+  if (!display) {
+    return;
+  }
   let source = config.templates.source.applyTemplates(sourceobj);
   const output = template
     .applyTemplates({
@@ -59,7 +61,12 @@ function log(level, sourceobj, text) {
       text: text,
     })
     .applyTemplates(sourceobj);
-  console.log(output);
+
+  if (level === "ERROR") {
+    console.error(output);
+  } else {
+    console.log(output);
+  }
 }
 
 module.exports = { debug, info, warning, error };

@@ -1,6 +1,7 @@
 const db = require("./database.js");
 const formatting = require("./formatting.js");
 const slack = require("./slack.js");
+const log = require("./logging.js");
 const slackBotId = process.env.SLACK_BOT_ID;
 const clickupSlackBotId = process.env.CLICKUP_SLACK_BOT_ID;
 
@@ -9,11 +10,12 @@ async function getMessages() {
 }
 
 async function sendMessage(jsonData) {
+  log.info("sendMessage called");
   slack.postMessage(jsonData.message);
 
   let raw = jsonData.message;
 
-  console.log(
+  log.debug(
     "requesthandle.sendMessage -> jsonData.message: " + jsonData.message,
   );
 
@@ -30,6 +32,7 @@ async function sendMessage(jsonData) {
 }
 
 async function slackMessage(jsonData) {
+  log.info("slackMessage called");
   if (jsonData.event.bot_id != slackBotId) {
     // For preventing message recursion
     jsonData.event.text = formatting.format(jsonData.event.text);
@@ -48,11 +51,13 @@ async function slackMessage(jsonData) {
 }
 
 async function removeMessage(id = "all") {
+  log.info("removeMessage called");
   if (id == "all") await db.setDB([{ message: "Resetted!", id: "0" }]);
   else await db.removeDB(id);
 }
 
 async function editMessage(id, raw) {
+  log.info("editMessage called");
   // remove html tags, add markup, newline
   let message = formatting.format(raw);
   // handle links and images
