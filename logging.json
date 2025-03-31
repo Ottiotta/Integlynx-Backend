@@ -2,7 +2,8 @@
   "templates": {
     "source": "${name}:${line}",
     "default": "[${level}] ${function} (${source}) ${text}",
-    "FATAL": "[${level}] (${name}) ${stack}"
+    "CATCH-ERROR": "[ERROR] ${name} (${message}) ${text}",
+    "FATAL": "[${level}] ${name} (${message}) ${text}"
   },
   "display": {
     "default": true,

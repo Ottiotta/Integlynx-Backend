@@ -36,12 +36,12 @@ function markup(str) {
   // heading 3
   str = str.replace(/^\#\#\# (.*?)(?=$)/gm, "<h3>$1</h3>");
   return str;
-};
+}
 
 function newLine(str) {
   str = str.split("\n").join("<br/>");
   return str;
-};
+}
 
 function format(str) {
   log.info("format called");
@@ -51,11 +51,12 @@ function format(str) {
   str = newLine(str);
   log.debug("out string: " + str);
   return str;
-};
+}
 
 module.exports = { format, linkHandle, replaceAsync };
 
-async function linkHandle(match, target, path = "", rem, mail) {
+async function linkHandle(match, name, target, path = "", rem, mail) {
+  if (name !== undefined) {return await namedLinkHandle(match, name, target, path, rem, mail);}
   log.info("linkhandle called");
   log.debug("match: " + match);
   log.debug("target: " + target);
@@ -82,10 +83,30 @@ async function linkHandle(match, target, path = "", rem, mail) {
           `OUT LINK: <a href="${"https://" + target + path}" target="_blank">${target + path}</a>`,
         );
         return `<a href="${"https://" + target + path}" target="_blank">${target + path}</a>`;
-      };
-    };
+      }
+    }
   } else return `<a href="mailto:${mail}">${mail}</a>`;
-};
+}
+
+async function namedLinkHandle(match, name, target, path = "", rem, mail) {
+  log.info("namedlinkhandle called");
+  log.debug("match: " + match);
+  log.debug("name: " + name);
+  log.debug("target: " + target);
+  log.debug("path: " + path);
+  log.debug("rem: " + rem);
+  log.debug("mail: " + mail);
+  if (mail == undefined) {
+    if (rem != undefined) {
+      return `<a href="${"https://" + rem}" target="_blank">${name}</a>`;
+    } else {
+      log.debug(
+        `OUT LINK: <a href="${"https://" + target + path}" target="_blank">${name}</a>`,
+      );
+      return `<a href="${"https://" + target + path}" target="_blank">${name}</a>`;
+    }
+  } else return `<a href="mailto:${mail}">${name}</a>`;
+}
 
 async function replaceAsync(str, regex, asyncFn) {
   log.info("replaceAsync called");

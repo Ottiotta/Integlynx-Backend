@@ -48,7 +48,7 @@ const server = http.createServer(function (req, res) {
         } catch (error) {
           res.statusCode = 400; // Bad request
           res.end("Error: Invalid JSON data");
-          log.error(JSON.stringify(error));
+          log.error(error, true);
         }
 
         // Send all messages to front-end

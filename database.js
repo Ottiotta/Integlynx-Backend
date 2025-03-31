@@ -47,7 +47,7 @@ async function removeDB(id) {
   if (index > -1) {
     currentMessages.splice(index, 1);
   }
-  log.log(
+  log.debug(
     "(after delete) currentMessages: " + JSON.stringify(currentMessages),
   );
   await setDB(currentMessages);

@@ -1,5 +1,5 @@
 entrypoint = "index.js"
-modules = ["nodejs-18:v3-20230608-f4cd419", "postgresql-16"]
+modules = ["nodejs-18:v3-20230608-f4cd419"]
 hidden = [".config", "package-lock.json"]
 
 [nix]
@@ -22,7 +22,7 @@ runButton = "Don't Run Repl"
 
 [[workflows.workflow]]
 name = "Don't Run Repl"
-mode = "sequential"
+mode = "parallel"
 author = 8662822
 
 [[workflows.workflow.tasks]]

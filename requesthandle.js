@@ -5,50 +5,61 @@ const log = require("./logging.js");
 const slackBotId = process.env.SLACK_BOT_ID;
 const clickupSlackBotId = process.env.CLICKUP_SLACK_BOT_ID;
 
+//regex is buggy
+
+const linkRegex = /(?:(?:\[(.*?)\]\()(?=\)(?:$)|(?: )?))?(?:(?:(?:https?:\/\/)([\w$\-_.+!*',();:%]+)(?:([\w$\-_.+!*'(),/?#&=;:%][\w$\-_.+!*'(),@/?#&=;:%]*[\w$\-_.+!*'(,@/?#&=;:%])|\@([\w$\-_.+!*'(),@/?#&=;:%]*))?)|([A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}))(?:\))?/mgi
+  
 async function getMessages() {
   return await db.getDB();
-}
+};
 
 async function sendMessage(jsonData) {
   log.info("sendMessage called");
-  slack.postMessage(jsonData.message);
+  try {
+    slack.postMessage(jsonData.message);
 
-  let raw = jsonData.message;
+    let raw = jsonData.message;
 
-  invalid invalid invalid
+    log.debug("jsonData:", jsonData.message);
 
-  log.debug(
-    "requesthandle.sendMessage -> jsonData.message: " + jsonData.message,
-  );
+    // remove html tags, add markup, newline
+    jsonData.message = formatting.format(jsonData.message);
+    // handle links and images
+    jsonData.message = await formatting.replaceAsync(
+      jsonData.message,
+      linkRegex,
+      formatting.linkHandle,
+    );
 
-  // remove html tags, add markup, newline
-  jsonData.message = formatting.format(jsonData.message);
-  //handle links and images
-  jsonData.message = await formatting.replaceAsync(
-    jsonData.message,
-    /(?:https?:\/\/([\w.-]+)(?:(\/[\w./@-]*)|\@?([\w./@-]*))?)|([A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,})/gi,
-    formatting.linkHandle,
-  );
-
-  await db.addDB(jsonData.message, raw);
+    await db.addDB(jsonData.message, raw);
+  } catch (error) {
+    log.error(error, true);
+    throw new Error("Error sending message");
+  }
 }
 
 async function slackMessage(jsonData) {
   log.info("slackMessage called");
+  log.debug("jsonData.event.bot_id: " + jsonData.event.bot_id);
+  log.debug("slackBotId: " + slackBotId);
+
+  let msg = jsonData.event.text;
+  let raw = jsonData.event.text;
+
   if (jsonData.event.bot_id != slackBotId) {
     // For preventing message recursion
-    jsonData.event.text = formatting.format(jsonData.event.text);
-    jsonData.event.text = await slack.linkHandle(jsonData.event.text);
-    jsonData.event.text = slack.mailHandle(jsonData.event.text);
+    msg = formatting.format(msg);
+    msg = await slack.linkHandle(msg);
+    msg = slack.mailHandle(msg);
 
     //clickup
     if (jsonData.event.bot_id == clickupSlackBotId) {
-      jsonData.event.text += slack.clickupHandle(
+      msg += slack.clickupHandle(
         jsonData.event.attachments[0].blocks[0].text.text,
       );
     }
 
-    await db.addDB(jsonData.event.text, jsonData.event.text);
+    await db.addDB(msg, raw);
   }
 }
 
@@ -65,7 +76,7 @@ async function editMessage(id, raw) {
   // handle links and images
   message = await formatting.replaceAsync(
     message,
-    /(?:https?:\/\/([\w.-]+)(?:(\/[\w./@-]*)|\@?([\w./@-]*))?)|([A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,})/gi,
+    linkRegex,
     formatting.linkHandle,
   );
   await db.editDB(id, message, raw);

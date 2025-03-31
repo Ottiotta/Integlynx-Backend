@@ -10,7 +10,7 @@ function getCallerInfo() {
     stack.match(/at\s+()(.*):(\d+):(\d+)/);
   if (caller) {
     return {
-      function: caller[1].split(".")[1],
+      function: caller[1].split(".").at(-1),
       name: caller[2].split("/").at(-1),
       path: caller[2].replace(/.*\//, ""),
       line: caller[3],
@@ -43,17 +43,29 @@ function warning(text) {
   log("WARNING", getCallerInfo(), text);
 }
 
-function error(text) {
-  log("ERROR", getCallerInfo(), text);
+function error(text, isCatch = false) {
+  if (isCatch) {
+    let { message, name } = error;
+    log(
+      "CATCH-ERROR",
+      { message: message, name: name },
+      error.stack.split("at ").slice(1).join("at "),
+    );
+  } else log("ERROR", getCallerInfo(), text);
 }
 
 function fatal(error) {
-  log("FATAL", { 'name': error.name, 'stack': error.stack });
+  let { message, name } = error;
+  log(
+    "FATAL",
+    { message: message, name: name },
+    error.stack.split("at ").slice(1).join("at "),
+  );
 }
 
 function log(level = "INFO", sourceobj = {}, text = "") {
-  const template = config.templates[level] || config.templates.default;
-  const display = config.display[level] || config.display.default;
+  const template = config.templates[level] !== undefined ? config.templates[level] : config.templates.default;
+  const display = config.display[level] !== undefined ? config.display[level] :config.display.default;
   if (!display) {
     return;
   }
@@ -66,7 +78,7 @@ function log(level = "INFO", sourceobj = {}, text = "") {
     })
     .applyTemplates(sourceobj);
 
-  if (level === "ERROR") {
+  if (level === "ERROR" || level === "CATCH-ERROR" || level === "FATAL") {
     console.error(output);
   } else {
     console.log(output);

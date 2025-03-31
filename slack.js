@@ -25,6 +25,7 @@ async function linkMatchHandle(match, link) {
   log.info("slackLinkHandle called");
   log.debug("match: " + match);
   log.debug("link: " + link);
+  let fetchresult;
   try {
     fetchresult = (await fetch(link)).headers
       .get("Content-Type")
